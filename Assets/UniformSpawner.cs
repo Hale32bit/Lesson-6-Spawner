@@ -6,26 +6,34 @@ using UnityEngine;
 public class UniformSpawner : MonoBehaviour
 {
     [SerializeField] private Enemy _enemyPrefab;
-    [SerializeField] private SpawnPoint[] _spawnpoints;
+    [SerializeField] private SpawnPoint[] _spawnPoints;
     [SerializeField] private float _timePeriod;
 
     private int _currentSpawnpointIndex = 0;
-    private float _lastSpawnTime;
+    private Coroutine _spawnProcess;
 
     private SpawnPoint CurrentSpawnPoint => _spawnpoints[_currentSpawnpointIndex];
 
-    private void Update()
+    private void Start()
     {
-        if(Time.time - _lastSpawnTime > _timePeriod)
+        _spawnProcess = StartCoroutine(SpawnProcess());
+    }
+
+    private IEnumerator SpawnProcess()
+    {
+        var timePeriod = new WaitForSeconds(_timePeriod);
+
+        while(true)
+        {
+            yield return timePeriod;
             Spawn();
+        }
     }
 
     private void Spawn()
     {
         var spawnTransform = CurrentSpawnPoint.transform;
         GameObject.Instantiate(_enemyPrefab, spawnTransform.position, spawnTransform.rotation);
-
-        _lastSpawnTime = Time.time;
         NextSpawnPoint();
     }
 
